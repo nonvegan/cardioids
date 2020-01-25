@@ -25,7 +25,7 @@ pointsRange.setAttribute("min", "2")
 pointsRange.setAttribute("max", "100")
 pointsRangeLabel.innerText = "nPoints"
 speedRangeLabel.innerText = "Speed"
-switchSliderLabel.innerText = "nCarioids++"
+switchSliderLabel.innerText = "αN++"
 button.innerHTML = "<span>Reset</span> Button"
 switchSlider.className = "switch"
 switchSlider.innerHTML = "<input type=\"checkbox\"><span class =\"slider round\"></span>"
