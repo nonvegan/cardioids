@@ -37,7 +37,6 @@ button.addEventListener('click', () => {
     speedRange.value = 50
     points = pointsRange.value * 10
     inc = mapValue(speedRange.value, 0, 100, 0, 0.025)
-    switchSlider.firstChild.checked = false
     colors = [Color.WHITE.hex()]
 })
 
