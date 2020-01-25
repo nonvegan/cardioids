@@ -3,9 +3,25 @@
          console.error("Can't devide by zero");
      else {
          return (value - initialRangeStart) * (finalRangeEnd - finalRangeStart) / (initialRangeEnd - initialRangeStart) + finalRangeStart
-
      }
  }
+
+ function getRandomFloat(min, max) {
+     return Math.random() * (max - min) + min;
+ }
+
+ function getRandomInt(min, max) {
+     return Math.floor(Math.random() * (max - min + 1) + min);
+ }
+
+ function getMs(fps) {
+     return 1000 / fps
+ }
+
+ function getMousePosElem(click) {
+     return new Vector(click.clientX - click.target.getBoundingClientRect().x, click.clientY - click.target.getBoundingClientRect().y)
+ }
+
 
  function randomHexColor() {
      return '#' + (function co(lor) {

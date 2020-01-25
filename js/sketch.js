@@ -2,169 +2,125 @@ const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 const divRanges = document.getElementById('div')
 const divResetButton = document.getElementById('resetDiv')
-const xRange = document.createElement('input')
-const yRange = document.createElement('input')
-const zRange = document.createElement('input')
-const infinityRange = document.createElement('input')
-const sizeRange = document.createElement('input')
-const xRangeLabel = document.createElement('label')
-const yRangeLabel = document.createElement('label')
-const zRangeLabel = document.createElement('label')
-const infinityRangeLabel = document.createElement('label')
+const pointsRange = document.createElement('input')
+const speedRange = document.createElement('input')
+const pointsRangeLabel = document.createElement('label')
+const speedRangeLabel = document.createElement('label')
+const xNLabel = document.createElement('label')
 const switchSliderLabel = document.createElement('label')
-const sizeRangeLabel = document.createElement('label')
 const switchSlider = document.createElement('label')
 const button = document.createElement('button')
 
-divRanges.appendChild(xRangeLabel)
-divRanges.appendChild(xRange)
-divRanges.appendChild(yRangeLabel)
-divRanges.appendChild(yRange)
-divRanges.appendChild(zRangeLabel)
-divRanges.appendChild(zRange)
-divRanges.appendChild(infinityRangeLabel)
-divRanges.appendChild(infinityRange)
-divRanges.appendChild(sizeRangeLabel)
-divRanges.appendChild(sizeRange)
+divRanges.appendChild(pointsRangeLabel)
+divRanges.appendChild(pointsRange)
+divRanges.appendChild(speedRangeLabel)
+divRanges.appendChild(speedRange)
+divRanges.appendChild(xNLabel)
 divResetButton.appendChild(switchSliderLabel)
 divResetButton.appendChild(switchSlider)
 divResetButton.appendChild(button)
-
-xRange.setAttribute("type", "range")
-yRange.setAttribute("type", "range")
-zRange.setAttribute("type", "range")
-infinityRange.setAttribute("type", "range")
-sizeRange.setAttribute("type", "range")
-xRange.setAttribute("min", "1")
-yRange.setAttribute("min", "1")
-zRange.setAttribute("min", "1")
-sizeRange.setAttribute("min", "1")
-
-xRangeLabel.innerText = "Re[c]"
-yRangeLabel.innerText = "Img[c]"
-zRangeLabel.innerText = "Z"
-infinityRangeLabel.innerText = "Infinity Limit"
-sizeRangeLabel.innerText = "Size"
-switchSliderLabel.innerText = "Grid"
+pointsRange.setAttribute("type", "range")
+speedRange.setAttribute("type", "range")
+pointsRange.setAttribute("min", "2")
+pointsRange.setAttribute("max", "100")
+pointsRangeLabel.innerText = "nPoints"
+speedRangeLabel.innerText = "Speed"
+switchSliderLabel.innerText = "nCarioids++"
 button.innerHTML = "<span>Reset</span> Button"
 switchSlider.className = "switch"
 switchSlider.innerHTML = "<input type=\"checkbox\"><span class =\"slider round\"></span>"
+switchSlider.firstChild.checked = true
 
 button.addEventListener('click', () => {
+    multiple = 2
+    pointsRange.value = 50
+    speedRange.value = 50
+    points = pointsRange.value * 10
+    inc = mapValue(speedRange.value, 0, 100, 0, 0.025)
     switchSlider.firstChild.checked = false
-    xRange.value = 50
-    yRange.value = 50
-    zRange.value = 50
-    infinityRange.value = 50
-    sizeRange.value = 50
-    clearImageData()
-    draw()
+    colors = [Color.WHITE.hex()]
 })
 
-xRange.addEventListener('change', () => {
-    clearImageData()
-    draw()
+speedRange.addEventListener('input', () => {
+    inc = mapValue(speedRange.value, 0, 100, 0, 0.025)
 })
 
-yRange.addEventListener('change', () => {
-    clearImageData()
-    draw()
+pointsRange.addEventListener('input', () => {
+    points = pointsRange.value * 10
 })
 
-infinityRange.addEventListener('change', () => {
-    clearImageData()
-    draw()
+canvas.addEventListener('mousemove', (click) => {
+
+    if (getMousePosElem(click).distance(centerPos) <= radius)
+        document.body.style.cursor = 'pointer'
+    else {
+        document.body.style.cursor = ''
+    }
 })
 
-zRange.addEventListener('change', () => {
-    clearImageData()
-    draw()
+canvas.addEventListener('click', (click) => {
+    if (getMousePosElem(click).distance(centerPos) <= radius)
+        colors.push(Color.RANDOM.hex())
 })
 
-sizeRange.addEventListener('change', () => {
-    clearImageData()
-    draw()
-})
-
-switchSlider.addEventListener('change', () => {
-    checkGridStatus()
-})
 
 const width = 600
 const height = 600
+const centerPos = new Vector(width / 2, height / 2)
 canvas.width = width
 canvas.height = height
-let newImageData = new ImageData(width, height)
-
-draw()
-
-function draw() {
-    drawImage()
-    checkGridStatus()
-}
-
-function drawImage() {
-    for (let x = 0; x < width; x++) {
-        for (let y = 0; y < height; y++) {
-            let i = (x + y * width) * 4
-            let c = Mandelbrot(x, y)
-            if (c) {
-                newImageData.data[i] = mapValue(c, 0, 1, 249, 255)
-                newImageData.data[i + 1] = mapValue(c, 0, 1, 38, 255)
-                newImageData.data[i + 2] = mapValue(c, 0, 1, 114, 255)
-                newImageData.data[i + 3] = 255
-            } else {
-
-                newImageData.data[i + 3] = 0
-            }
+let radius = width / 2.25
+let points = pointsRange.value * 10
+let multiple = 2
+let inc = mapValue(speedRange.value, 0, 100, 0, 0.025)
+let colors = Array(Color.WHITE.hex())
 
 
-        }
+
+
+setInterval(() => {
+    clear()
+    if (switchSlider.firstChild.checked)
+        multiple += inc
+    drawLines()
+    drawCircle()
+    drawPoints()
+}, getMs(60))
+
+
+function drawLines() {
+    xNLabel.innerText = `αN: ${Math.trunc(multiple)}`
+    ctx.lineWidth = 1
+    for (let i = 0; i < points; i++) {
+        ctx.strokeStyle = colors[Math.round(mapValue(i, 0, points, 0, colors.length - 1))]
+        ctx.beginPath()
+        ctx.moveTo(getPosCircle(i).x, getPosCircle(i).y)
+        ctx.lineTo(getPosCircle(i * multiple % points).x, getPosCircle(i * multiple % points).y)
+        ctx.stroke()
     }
-    ctx.putImageData(newImageData, 0, 0)
 }
 
-function clearImageData() {
-    newImageData = new ImageData(width, height)
-}
-
-function drawGrid() {
-    ctx.strokeStyle = '#000'
-    ctx.lineWidth = 2
+function drawCircle() {
+    ctx.strokeStyle = Color.WHITE.hex()
+    ctx.lineWidth = 5
     ctx.beginPath()
-    ctx.moveTo(width / 2, 0)
-    ctx.lineTo(width / 2, height)
-    ctx.moveTo(0, height / 2)
-    ctx.lineTo(width, height / 2)
+    ctx.ellipse(width / 2, height / 2, width / 2.25, height / 2.25, 0, 0, 2 * Math.PI, false)
     ctx.stroke()
 }
 
-function checkGridStatus() {
-    if (switchSlider.firstChild.checked) {
-        drawGrid()
-    } else
-        clearGrid()
-}
-
-function clearGrid() {
-    ctx.clearRect(0, 0, width, height)
-    ctx.putImageData(newImageData, 0, 0)
-}
-
-function Mandelbrot(x, y) {
-    let rangex = xRange.value / sizeRange.value * 2.5
-    let rangey = yRange.value / sizeRange.value * 2.5
-    let c = new complexNumber(mapValue(x, 0, width, -rangex, rangex), mapValue(y, 0, height, -rangey, rangey))
-    let nextC = c.clone()
-    let n = 0
-    let z = zRange.value
-    let infinity = mapValue(infinityRange.value, 0, 100, 0, 5)
-    while (n < z) {
-        nextC = nextC.quad()
-        nextC.add(c)
-        if (Math.abs(nextC.a + nextC.b) > infinity)
-            break
-        n++
+function drawPoints() {
+    for (let i = 0; i < points; i++) {
+        ctx.fillStyle = colors[Math.round(mapValue(i, 0, points, 0, colors.length - 1))]
+        ctx.beginPath()
+        ctx.ellipse(getPosCircle(i).x, getPosCircle(i).y, 5, 5, 0, 0, 2 * Math.PI, false)
+        ctx.fill()
     }
-    return n / z
+}
+
+function clear() {
+    ctx.clearRect(0, 0, width, height)
+}
+
+function getPosCircle(i) {
+    return centerPos.clone().addPolar(2 * Math.PI / points * i, radius)
 }
