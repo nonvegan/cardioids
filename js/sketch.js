@@ -75,9 +75,6 @@ let multiple = 2
 let inc = mapValue(speedRange.value, 0, 100, 0, 0.025)
 let colors = Array(Color.WHITE.hex())
 
-
-
-
 setInterval(() => {
     clear()
     if (switchSlider.firstChild.checked)
@@ -87,12 +84,11 @@ setInterval(() => {
     drawPoints()
 }, getMs(60))
 
-
 function drawLines() {
     xNLabel.innerText = `αN: ${Math.trunc(multiple)}`
     ctx.lineWidth = 1
     for (let i = 0; i < points; i++) {
-        ctx.strokeStyle = colors[Math.round(mapValue(i, 0, points, 0, colors.length - 1))]
+        ctx.strokeStyle = colors[Math.floor(mapValue(i, 0, points, 0, colors.length))]
         ctx.beginPath()
         ctx.moveTo(getPosCircle(i).x, getPosCircle(i).y)
         ctx.lineTo(getPosCircle(i * multiple % points).x, getPosCircle(i * multiple % points).y)
@@ -110,7 +106,7 @@ function drawCircle() {
 
 function drawPoints() {
     for (let i = 0; i < points; i++) {
-        ctx.fillStyle = colors[Math.round(mapValue(i, 0, points, 0, colors.length - 1))]
+        ctx.fillStyle = colors[Math.floor(mapValue(i, 0, points, 0, colors.length))]
         ctx.beginPath()
         ctx.ellipse(getPosCircle(i).x, getPosCircle(i).y, 5, 5, 0, 0, 2 * Math.PI, false)
         ctx.fill()
